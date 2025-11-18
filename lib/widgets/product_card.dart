@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:football_shop/screens/product_entry_list.dart';
+import 'package:football_shop/screens/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class ProductCard extends StatelessWidget {
   final String name;
@@ -20,6 +24,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -27,7 +32,6 @@ class ProductCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // Thumbnail Image
             Container(
               width: 80,
               height: 80,
@@ -40,7 +44,7 @@ class ProductCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // Product Info
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,6 +58,7 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(description, maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
+
                   Row(
                     children: [
                       Chip(
@@ -67,6 +72,50 @@ class ProductCard extends StatelessWidget {
                           backgroundColor: Colors.orange.shade100,
                         ),
                     ],
+                  ),
+
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.green.shade200,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      onPressed: () async {
+                        final response = await request.logout(
+                          "http://localhost:8000/auth/logout/",
+                        );
+
+                        String message = response["message"];
+
+                        if (context.mounted) {
+                          if (response['status']) {
+                            String uname = response["username"];
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("$message See you again, $uname.")),
+                            );
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(message)),
+                            );
+                          }
+                        }
+                      },
+                      child: const Text(
+                        "See Product Details",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
                   ),
                 ],
               ),

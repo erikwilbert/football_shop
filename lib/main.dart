@@ -1,19 +1,30 @@
 import 'package:flutter/material.dart';
-import 'screens/home_page.dart';
+import 'package:football_shop/screens/home_page.dart';
+import 'package:football_shop/screens/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const FootballShopApp());
+  runApp(const MyApp());
 }
 
-class FootballShopApp extends StatelessWidget {
-  const FootballShopApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Football Shop',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(),
+    return Provider(
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
+      child: MaterialApp(
+        title: 'Burhan Sportswear',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(secondary: Colors.blueAccent[400]),
+        ),
+        home: const LoginPage(),
+      ),
     );
   }
 }

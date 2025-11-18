@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:football_shop/screens/product_entry_list.dart';
 import '../screens/home_page.dart';
 import '../screens/add_product_form.dart';
 
@@ -36,6 +37,17 @@ class AppDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => const AddProductPage()),
               );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_reaction_rounded),
+            title: const Text('Product List'),
+            onTap: () {
+                // Route to product list page
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProductEntryListPage()),
+                );
             },
           ),
         ],

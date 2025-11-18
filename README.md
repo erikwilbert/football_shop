@@ -32,3 +32,39 @@ Layout widget seperti Padding, SingleChildScrollView, dan ListView memudahkan pe
 
 4. Bagaimana kamu menyesuaikan warna tema agar aplikasi Football Shop memiliki identitas visual yang konsisten dengan brand toko?
 Untuk identitas visual konsisten, aku menggunakan ThemeData pada MaterialApp untuk menentukan warna utama (primarySwatch) yang sesuai dengan brand toko. Misalnya, warna biru digunakan sebagai warna utama AppBar dan tombol, sementara warna hijau dan merah untuk tombol sekunder. Dengan pengaturan tema ini, semua halaman dan widget memiliki warna yang seragam.
+
+
+## Tugas 9
+1. Jelaskan mengapa kita perlu membuat model Dart saat mengambil/mengirim data JSON? Apa konsekuensinya jika langsung memetakan Map<String, dynamic> tanpa model (terkait validasi tipe, null-safety, maintainability)?
+Model Dart (class dengan fromJson/toJson) memberi type-safety, validasi & normalisasi pusat, dan dokumentasi kode; ini mencegah banyak bug runtime akibat cast/null, memudahkan refactor, mengurangi duplikasi parsing di banyak tempat, dan membuat testing lebih mudah dibanding langsung memakai Map<String,dynamic> yang raw dan rentan error.
+
+2. Apa fungsi package http dan CookieRequest dalam tugas ini? Jelaskan perbedaan peran http vs CookieRequest.
+http adalah library HTTP generik untuk request/response tetapi tidak otomatis mengelola cookie/CSRF/session, sedangkan CookieRequest (dari pbp_django_auth) adalah wrapper yang meng-handle cookie session dan CSRF token khusus untuk integrasi dengan Django—pakai http untuk API stateless/token, pakai CookieRequest untuk session-based Django agar autentikasi berjalan otomatis.
+
+3. Jelaskan mengapa instance CookieRequest perlu untuk dibagikan ke semua komponen di aplikasi Flutter.
+Karena CookieRequest menyimpan state autentikasi (cookie/session, CSRF) yang harus konsisten di seluruh app; membagikannya lewat Provider memungkinkan semua widget mengakses request yang sama, merespon perubahan status login secara reaktif, mencegah duplikasi state/cookie mismatch, dan memudahkan testing serta pemeliharaan.
+
+4. Jelaskan konfigurasi konektivitas yang diperlukan agar Flutter dapat berkomunikasi dengan Django. Mengapa kita perlu menambahkan 10.0.2.2 pada ALLOWED_HOSTS, mengaktifkan CORS dan pengaturan SameSite/cookie, dan menambahkan izin akses internet di Android? Apa yang akan terjadi jika konfigurasi tersebut tidak dilakukan dengan benar?
+Untuk dev perlu gunakan 10.0.2.2 dari Android emulator agar terhubung ke host machine, menambahkan IP/host itu ke ALLOWED_HOSTS Django agar request diterima, aktifkan CORS (django-cors-headers) agar browser/web tidak memblok cross-origin request, set atribut cookie SameSite/Secure sesuai skenario agar cookie session/CSRF dikirim, dan tambahkan <uses-permissionandroid:name="android.permission.INTERNET"/> di AndroidManifest; jika langkah ini diabaikan maka request akan gagal (connection refused, 400 Bad Request, CORS blocked, atau cookie tidak dikirim sehingga autentikasi gagal).
+
+5. Jelaskan mekanisme pengiriman data mulai dari input hingga dapat ditampilkan pada Flutter.
+User isi form -> client-side validasi -> bangun model/DTO lalu jsonEncode() -> kirim lewat CookieRequest.postJson atau http.post ke endpoint Django -> Django mem-parse, validasi server-side dan simpan ke DB -> server kembali response JSON -> Flutter menerima dan mem-parse (fromJson), lalu update state/provider sehingga UI direbuild dan data tampil.
+
+6. Jelaskan mekanisme autentikasi dari login, register, hingga logout. Mulai dari input data akun pada Flutter ke Django hingga selesainya proses autentikasi oleh Django dan tampilnya menu pada Flutter.
+Register: Flutter kirim data ke endpoint register, Django buat user; 
+Login: Flutter kirim kredensial ke endpoint login, Django authenticate() dan login() lalu set sessionid cookie yang disimpan client (CookieRequest), selanjutnya setiap request terlindungi mengikutsertakan cookie tersebut sehingga backend mengenali user dan UI berubah (tampilkan menu user/logout); 
+Logout: Flutter panggil endpoint logout yang memanggil logout() di Django dan server menghapus/expire session, CookieRequest/Flutter clear state lalu navigasi ke halaman login.
+
+7. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step! (bukan hanya sekadar mengikuti tutorial).
+- Membuat model custom dari django tugas sebelumnya pada flutter.
+- Integrasi authentication dari django ke flutter dengan membuat django-app authentication dan install django-cors-headers dan tambahkan 10.0.2.2 ke allowed_host.
+- Membuat fungsi login, register, dan logout pada views.py dan tambahkan ke urls.py.
+- Tambahkan juga /auth sebagai urls untuk authentication ke urls.py project.
+- Pada sisi flutter, install package provider dan pbp_django_auth untuk menyediakan CookieRequest.
+- Buatkan juga screens login.dart dan register.dart, dan tambahkan fungsinya di tempat yang ingin ada fitur authentication.
+- Tambahkan juga package HTTP, dan tambahkan code pada file androidmanifest.xml untuk memperbolehkan akses Internet pada aplikasi Flutter yang sedang dibuat.
+- Menambahkan endpoint proxy untuk mengatasi masalah CORS pada gambar pada views.py di main dan juga tambahkan urls nya ke urls.py.
+- Buat product_entry_card.dart pada widget dan product_entry_list.dart pada screens sebagai halaman yang telah difetch datanya dan ditampilkan. Tambahkan juga product_entry_list.dart ke drawer, tambah juga di button see product di product_card.
+- Buatkan juga product_detail.dart di screens sebagai halaman untuk melihat detail product dan tambahkan ke product_entry_list.
+- Integrasi form django ke flutter dengan membuat method create baru di views.py di main dan tambahkan juga urls nya ke urls.py.
+- Pada sisi flutter, hubungkan add_product dengan cookierequest dan lengkapi perintah button submisi untuk mengirim data json.

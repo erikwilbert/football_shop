@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_drawer.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:football_shop/screens/home_page.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
@@ -35,6 +39,7 @@ class _AddProductPageState extends State<AddProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(title: const Text('Tambah Produk Baru')),
       drawer: const AppDrawer(),
@@ -106,7 +111,38 @@ class _AddProductPageState extends State<AddProductPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: _submitForm,
+                onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  final response = await request.postJson(
+                    "http://localhost:8000/create-flutter/",
+                    jsonEncode({
+                      "name": _nameController.text.trim(),
+                      "price": double.parse(_priceController.text.trim()),
+                      "description": _descController.text.trim(),
+                      "thumbnail": _thumbController.text.trim(),
+                      "category": _categoryController.text.trim(),
+                      "is_featured": _isFeatured,
+                    }),
+                  );
+
+                  if (context.mounted) {
+                    if (response['status'] == 'success') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Product successfully saved!")),
+                      );
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomePage()),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Something went wrong, please try again.")),
+                      );
+                    }
+                  }
+                }
+              },
                 icon: const Icon(Icons.save),
                 label: const Text('Save'),
                 style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
