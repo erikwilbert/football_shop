@@ -114,7 +114,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   final response = await request.postJson(
-                    "http://localhost:8000/create-flutter/",
+                    "http://erik-wilbert-burhansportswear.pbp.cs.ui.ac.id/create-flutter/",
                     jsonEncode({
                       "name": _nameController.text.trim(),
                       "price": double.parse(_priceController.text.trim()),

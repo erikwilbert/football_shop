@@ -87,7 +87,7 @@ class ProductCard extends StatelessWidget {
                       ),
                       onPressed: () async {
                         final response = await request.logout(
-                          "http://localhost:8000/auth/logout/",
+                          "http://erik-wilbert-burhansportswear.pbp.cs.ui.ac.id/auth/logout/",
                         );
 
                         String message = response["message"];

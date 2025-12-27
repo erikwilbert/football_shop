@@ -7,7 +7,6 @@ class ProductDetailPage extends StatelessWidget {
   const ProductDetailPage({super.key, required this.product});
 
   String _formatDate(DateTime date) {
-    // Simple date formatter without intl package
     final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return '${date.day} ${months[date.month - 1]} ${date.year}, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
@@ -25,10 +24,9 @@ class ProductDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Thumbnail image
             if (product.thumbnail != null && product.thumbnail!.isNotEmpty)
               Image.network(
-                'http://localhost:8000/proxy-image/?url=${Uri.encodeComponent(product.thumbnail!)}',
+                'http:///perik-wilbert-burhansportswear.pbp.cs.ui.ac.id/?url=${Uri.encodeComponent(product.thumbnail!)}',
                 width: double.infinity,
                 height: 250,
                 fit: BoxFit.cover,
